@@ -69,7 +69,7 @@ def listValueSheetnize(target, src, rng, endpoint, additionalBorder=[]):
             ab = copy.deepcopy(additionalBorder) 
             ab.append(rng[0:1])
 
-            if isinstance(src[k], list):
+            if isinstance(item, list):
                 endpoint = listValueSheetnize(target, item, rng[1:], 
                                               endpoint, ab)
             else:
