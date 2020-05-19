@@ -14,61 +14,144 @@ schema.load("./ansible-playbook")
 
 excel = ExcelBook("./result.xlsx")
 
+def addBaseBorder(target, rng, endpoint, additionalBorder):
+    target.addBorder(list(rng), [endpoint], 'thin', 
+                     COLOR_WEEK_BLACK, ['top'])
+    target.addBorder(['B','I','J',rng[0:1]], [endpoint], 
+                    'thin', COLOR_WEEK_BLACK, ['left'])
+    target.addBorder(additionalBorder, [endpoint], 
+                    'thin', COLOR_WEEK_BLACK, ['left'])
+    target.addBorder(['J'], [endpoint], 'thin', 
+                    COLOR_WEEK_BLACK, ['right'])
+    target.addFont(list("BCDEFGHIJ"), [endpoint], name='Arial')
+ 
+
 # Value tree to excel.
 #
-def valueSheetnize(target, src, rng, endpoint, additionalBorder=[]):
+def dictValueSheetnize(target, src, rng, endpoint, additionalBorder=[]):
     for k in src.keys():
-        if isinstance(src[k], dict):
+        if isinstance(src[k], (list, dict)):
             target.addData(rng[0:1], endpoint, k)
-            target.addBorder(list(rng), [endpoint], 'thin', 
-                            COLOR_WEEK_BLACK, ['top'])
-            target.addBorder(['B','I','J',rng[0:1]], [endpoint], 
-                            'thin', COLOR_WEEK_BLACK, ['left'])
-            target.addBorder(additionalBorder, [endpoint], 
-                            'thin', COLOR_WEEK_BLACK, ['left'])
-            target.addBorder(['J'], [endpoint], 'thin', 
-                            COLOR_WEEK_BLACK, ['right'])
-            target.addFont(list("BCDEFGHIJ"), [endpoint], name='Arial')
+            addBaseBorder(target, src, rng, endpoint, additionalBorder)
             endpoint += 1
             ab = copy.deepcopy(additionalBorder) 
             ab.append(rng[0:1])
-            endpoint = valueSheetnize(target, src[k], rng[1:], 
-                                      endpoint, ab)
 
-        elif isinstance(src[k], list):
+            if isinstance(src[k], list):
+                endpoint = listValueSheetnize(target, src[k], rng[1:], 
+                                              endpoint, ab)
+            else:
+                endpoint = dictValueSheetnize(target, src[k], rng[1:], 
+                                              endpoint, ab)
+ 
+            target.addborder(list(rng), [endpoint], 'thin', 
+                             color_week_black, ['buttom'])
+        elif isinstance(src[k], (int, float, str, bool)):
             target.addData(rng[0:1], endpoint, k)
-            for item in src[k]:
-                target.addData('I', endpoint, item)
-                target.addBorder(list("IJ"), [endpoint], 'dotted', 
-                                COLOR_WEEK_BLACK, ['bottom'])
-                target.addBorder(['B','I','J',rng[0:1]], [endpoint], 
-                                'thin', COLOR_WEEK_BLACK, ['left'])
-                target.addBorder(additionalBorder, [endpoint], 
-                                 'thin', COLOR_WEEK_BLACK, ['left'])
-                target.addBorder(['J'], [endpoint], 'thin', 
-                                COLOR_WEEK_BLACK, ['right'])
-                target.addFont(list("BCDEFGHIJ"), [endpoint], name='Arial')
-                endpoint += 1
-        else:
-            target.addData(rng[0:1], endpoint, k)
-            if isinstance(src[k], bool):
+            if isinstance(item, bool):
                 target.addData('I', endpoint, "yes" if src[k] else "no")
             else:
                 target.addData('I', endpoint, src[k])
 
-            target.addBorder(list(rng), [endpoint], 'thin', 
-                            COLOR_WEEK_BLACK, ['top','bottom'])
-            target.addBorder(['B','I','J',rng[0:1]], [endpoint], 
-                            'thin', COLOR_WEEK_BLACK, ['left'])
-            target.addBorder(additionalBorder, [endpoint], 
-                             'thin', COLOR_WEEK_BLACK, ['left'])
-            target.addBorder(['J'], [endpoint], 'thin', 
-                            COLOR_WEEK_BLACK, ['right'])
-            target.addFont(list("BCDEFGHIJ"), [endpoint], name='Arial')
+            addBaseBorder(target, src, rng, endpoint, additionalBorder)
+            target.addborder(list(rng), [endpoint], 'thin', 
+                             color_week_black, ['buttom'])
             endpoint += 1
-    
-
     return endpoint
+
+def listValueSheetnize(target, src, rng, endpoint, additionalBorder=[]):
+    i = 0
+    for item in src:
+        if isinstance(item, (list, dict)):
+            target.addData(rng[0:1], endpoint, '[ '+i+' ]')
+            addBaseBorder(target, src, rng, endpoint, additionalBorder)
+            endpoint += 1
+            ab = copy.deepcopy(additionalBorder) 
+            ab.append(rng[0:1])
+
+            if isinstance(src[k], list):
+                endpoint = listValueSheetnize(target, src[k], rng[1:], 
+                                              endpoint, ab)
+            else:
+                endpoint = dictValueSheetnize(target, src[k], rng[1:], 
+                                              endpoint, ab)
+
+            target.addborder(list(rng), [endpoint], 'thin', 
+                             color_week_black, ['buttom'])
+
+        elif isinstance(item, (int, float, str, bool)):
+            target.addData(rng[0:1], endpoint, '[ '+i+' ]')
+            if isinstance(item, bool):
+                target.addData('I', endpoint, "yes" if src[k] else "no")
+            else:
+                target.addData('I', endpoint, src[k])
+
+            addBaseBorder(target, src, rng, endpoint, additionalBorder)
+            target.addborder(list(rng), [endpoint], 'thin', 
+                             color_week_black, ['buttom'])
+            endpoint += 1
+
+        i += 1
+    return endpoint
+
+def valueSheetnize(target, src, rng, endpoint, additionalBorder=[]):
+    if isinstance(src, dict):
+        dictValueSheetnize(target, src, rng, endpoint, additionalBorder)
+    elif isinstance(src, list):
+        listValueSheetnize(target, src, rng, endpoint, additionalBorder)
+#def valueSheetnize(target, src, rng, endpoint, additionalBorder=[]):
+#    for k in src.keys():
+#        if isinstance(src[k], dict):
+#            target.addData(rng[0:1], endpoint, k)
+#            target.addBorder(list(rng), [endpoint], 'thin', 
+#                            COLOR_WEEK_BLACK, ['top'])
+#            target.addBorder(['B','I','J',rng[0:1]], [endpoint], 
+#                            'thin', COLOR_WEEK_BLACK, ['left'])
+#            target.addBorder(additionalBorder, [endpoint], 
+#                            'thin', COLOR_WEEK_BLACK, ['left'])
+#            target.addBorder(['J'], [endpoint], 'thin', 
+#                            COLOR_WEEK_BLACK, ['right'])
+#            target.addFont(list("BCDEFGHIJ"), [endpoint], name='Arial')
+#            endpoint += 1
+#            ab = copy.deepcopy(additionalBorder) 
+#            ab.append(rng[0:1])
+#            endpoint = valueSheetnize(target, src[k], rng[1:], 
+#                                      endpoint, ab)
+#
+#        elif isinstance(src[k], list):
+#            target.addData(rng[0:1], endpoint, k)
+#            for item in src[k]:
+#                target.addData('I', endpoint, item)
+#                target.addBorder(list("IJ"), [endpoint], 'dotted', 
+#                                COLOR_WEEK_BLACK, ['bottom'])
+#                target.addBorder(['B','I','J',rng[0:1]], [endpoint], 
+#                                'thin', COLOR_WEEK_BLACK, ['left'])
+#                target.addBorder(additionalBorder, [endpoint], 
+#                                 'thin', COLOR_WEEK_BLACK, ['left'])
+#                target.addBorder(['J'], [endpoint], 'thin', 
+#                                COLOR_WEEK_BLACK, ['right'])
+#                target.addFont(list("BCDEFGHIJ"), [endpoint], name='Arial')
+#                endpoint += 1
+#        else:
+#            target.addData(rng[0:1], endpoint, k)
+#            if isinstance(src[k], bool):
+#                target.addData('I', endpoint, "yes" if src[k] else "no")
+#            else:
+#                target.addData('I', endpoint, src[k])
+#
+#            target.addBorder(list(rng), [endpoint], 'thin', 
+#                            COLOR_WEEK_BLACK, ['top','bottom'])
+#            target.addBorder(['B','I','J',rng[0:1]], [endpoint], 
+#                            'thin', COLOR_WEEK_BLACK, ['left'])
+#            target.addBorder(additionalBorder, [endpoint], 
+#                             'thin', COLOR_WEEK_BLACK, ['left'])
+#            target.addBorder(['J'], [endpoint], 'thin', 
+#                            COLOR_WEEK_BLACK, ['right'])
+#            target.addFont(list("BCDEFGHIJ"), [endpoint], name='Arial')
+#            endpoint += 1
+#    
+#
+#    return endpoint
 
 
 # Create Site Sheet.

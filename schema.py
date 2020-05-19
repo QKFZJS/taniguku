@@ -40,6 +40,8 @@ class Schema:
             with (rootPath / playbookPath ).open('r') as f:
                 playbook = yaml.safe_load(f)[0]
                 playbook['path'] = playbookPath 
+                if not 'become' in playbook:
+                    playbook['become'] = False
                 self.playbooks.append(playbook)
 
         # Load Global vars
@@ -49,7 +51,8 @@ class Schema:
         for path in globalVarsFiles:
             with path.open('r') as f:
                 globalVars = yaml.safe_load(f)
-                self.globalVars.update(globalVars)
+                if globalVars is not None:
+                    self.globalVars.update(globalVars)
 
         # Load environment file.
         with (rootPath / environment).open('r') as f:
@@ -77,7 +80,8 @@ class Schema:
             for path in groupVarsFiles:
                 with path.open('r') as f:
                     groupVars = yaml.safe_load(f)
-                    group['vars'].update(groupVars) 
+                    if groupVars is not None:
+                        group['vars'].update(groupVars) 
 
         # Load Host
         tempList = list()
@@ -94,7 +98,8 @@ class Schema:
             for path in hostVarsFiles:
                 with path.open('r') as f:
                     hostVars = yaml.safe_load(f)
-                    host['vars'].update(hostVars)
+                    if hostVars is not None:
+                        host['vars'].update(hostVars)
 
             self.hosts.append(host)
 
