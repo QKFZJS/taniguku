@@ -99,7 +99,7 @@ def valueSheetnize(target, src, rng, endpoint, additionalBorder=[]):
         endpoint = dictValueSheetnize(target, src, rng, endpoint, additionalBorder)
     elif isinstance(src, list):
         endpoint = listValueSheetnize(target, src, rng, endpoint, additionalBorder)
-        return endpoint
+    return endpoint
 
 # Create Site Sheet.
 #
