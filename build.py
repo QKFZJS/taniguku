@@ -32,7 +32,7 @@ def dictValueSheetnize(target, src, rng, endpoint, additionalBorder=[]):
     for k in src.keys():
         if isinstance(src[k], (list, dict)):
             target.addData(rng[0:1], endpoint, k)
-            addBaseBorder(target, src, rng, endpoint, additionalBorder)
+            addBaseBorder(target, rng, endpoint, additionalBorder)
             endpoint += 1
             ab = copy.deepcopy(additionalBorder) 
             ab.append(rng[0:1])
@@ -44,18 +44,18 @@ def dictValueSheetnize(target, src, rng, endpoint, additionalBorder=[]):
                 endpoint = dictValueSheetnize(target, src[k], rng[1:], 
                                               endpoint, ab)
  
-            target.addborder(list(rng), [endpoint], 'thin', 
-                             color_week_black, ['buttom'])
+            target.addBorder(list(rng), [endpoint], 'thin', 
+                             COLOR_WEEK_BLACK, ['buttom'])
         elif isinstance(src[k], (int, float, str, bool)):
             target.addData(rng[0:1], endpoint, k)
-            if isinstance(item, bool):
+            if isinstance(src[k], bool):
                 target.addData('I', endpoint, "yes" if src[k] else "no")
             else:
                 target.addData('I', endpoint, src[k])
 
-            addBaseBorder(target, src, rng, endpoint, additionalBorder)
-            target.addborder(list(rng), [endpoint], 'thin', 
-                             color_week_black, ['buttom'])
+            addBaseBorder(target, rng, endpoint, additionalBorder)
+            target.addBorder(list(rng), [endpoint], 'thin', 
+                             COLOR_WEEK_BLACK, ['buttom'])
             endpoint += 1
     return endpoint
 
@@ -63,32 +63,32 @@ def listValueSheetnize(target, src, rng, endpoint, additionalBorder=[]):
     i = 0
     for item in src:
         if isinstance(item, (list, dict)):
-            target.addData(rng[0:1], endpoint, '[ '+i+' ]')
-            addBaseBorder(target, src, rng, endpoint, additionalBorder)
+            target.addData(rng[0:1], endpoint, '[ '+str(i)+' ]')
+            addBaseBorder(target, rng, endpoint, additionalBorder)
             endpoint += 1
             ab = copy.deepcopy(additionalBorder) 
             ab.append(rng[0:1])
 
             if isinstance(src[k], list):
-                endpoint = listValueSheetnize(target, src[k], rng[1:], 
+                endpoint = listValueSheetnize(target, item, rng[1:], 
                                               endpoint, ab)
             else:
-                endpoint = dictValueSheetnize(target, src[k], rng[1:], 
+                endpoint = dictValueSheetnize(target, item, rng[1:], 
                                               endpoint, ab)
 
-            target.addborder(list(rng), [endpoint], 'thin', 
-                             color_week_black, ['buttom'])
+            target.addBorder(list(rng), [endpoint], 'thin', 
+                             COLOR_WEEK_BLACK, ['buttom'])
 
         elif isinstance(item, (int, float, str, bool)):
-            target.addData(rng[0:1], endpoint, '[ '+i+' ]')
+            target.addData(rng[0:1], endpoint, '[ '+str(i)+' ]')
             if isinstance(item, bool):
-                target.addData('I', endpoint, "yes" if src[k] else "no")
+                target.addData('I', endpoint, "yes" if item else "no")
             else:
-                target.addData('I', endpoint, src[k])
+                target.addData('I', endpoint, item)
 
-            addBaseBorder(target, src, rng, endpoint, additionalBorder)
-            target.addborder(list(rng), [endpoint], 'thin', 
-                             color_week_black, ['buttom'])
+            addBaseBorder(target, rng, endpoint, additionalBorder)
+            target.addBorder(list(rng), [endpoint], 'thin', 
+                             COLOR_WEEK_BLACK, ['buttom'])
             endpoint += 1
 
         i += 1
@@ -96,63 +96,10 @@ def listValueSheetnize(target, src, rng, endpoint, additionalBorder=[]):
 
 def valueSheetnize(target, src, rng, endpoint, additionalBorder=[]):
     if isinstance(src, dict):
-        dictValueSheetnize(target, src, rng, endpoint, additionalBorder)
+        endpoint = dictValueSheetnize(target, src, rng, endpoint, additionalBorder)
     elif isinstance(src, list):
-        listValueSheetnize(target, src, rng, endpoint, additionalBorder)
-#def valueSheetnize(target, src, rng, endpoint, additionalBorder=[]):
-#    for k in src.keys():
-#        if isinstance(src[k], dict):
-#            target.addData(rng[0:1], endpoint, k)
-#            target.addBorder(list(rng), [endpoint], 'thin', 
-#                            COLOR_WEEK_BLACK, ['top'])
-#            target.addBorder(['B','I','J',rng[0:1]], [endpoint], 
-#                            'thin', COLOR_WEEK_BLACK, ['left'])
-#            target.addBorder(additionalBorder, [endpoint], 
-#                            'thin', COLOR_WEEK_BLACK, ['left'])
-#            target.addBorder(['J'], [endpoint], 'thin', 
-#                            COLOR_WEEK_BLACK, ['right'])
-#            target.addFont(list("BCDEFGHIJ"), [endpoint], name='Arial')
-#            endpoint += 1
-#            ab = copy.deepcopy(additionalBorder) 
-#            ab.append(rng[0:1])
-#            endpoint = valueSheetnize(target, src[k], rng[1:], 
-#                                      endpoint, ab)
-#
-#        elif isinstance(src[k], list):
-#            target.addData(rng[0:1], endpoint, k)
-#            for item in src[k]:
-#                target.addData('I', endpoint, item)
-#                target.addBorder(list("IJ"), [endpoint], 'dotted', 
-#                                COLOR_WEEK_BLACK, ['bottom'])
-#                target.addBorder(['B','I','J',rng[0:1]], [endpoint], 
-#                                'thin', COLOR_WEEK_BLACK, ['left'])
-#                target.addBorder(additionalBorder, [endpoint], 
-#                                 'thin', COLOR_WEEK_BLACK, ['left'])
-#                target.addBorder(['J'], [endpoint], 'thin', 
-#                                COLOR_WEEK_BLACK, ['right'])
-#                target.addFont(list("BCDEFGHIJ"), [endpoint], name='Arial')
-#                endpoint += 1
-#        else:
-#            target.addData(rng[0:1], endpoint, k)
-#            if isinstance(src[k], bool):
-#                target.addData('I', endpoint, "yes" if src[k] else "no")
-#            else:
-#                target.addData('I', endpoint, src[k])
-#
-#            target.addBorder(list(rng), [endpoint], 'thin', 
-#                            COLOR_WEEK_BLACK, ['top','bottom'])
-#            target.addBorder(['B','I','J',rng[0:1]], [endpoint], 
-#                            'thin', COLOR_WEEK_BLACK, ['left'])
-#            target.addBorder(additionalBorder, [endpoint], 
-#                             'thin', COLOR_WEEK_BLACK, ['left'])
-#            target.addBorder(['J'], [endpoint], 'thin', 
-#                            COLOR_WEEK_BLACK, ['right'])
-#            target.addFont(list("BCDEFGHIJ"), [endpoint], name='Arial')
-#            endpoint += 1
-#    
-#
-#    return endpoint
-
+        endpoint = listValueSheetnize(target, src, rng, endpoint, additionalBorder)
+        return endpoint
 
 # Create Site Sheet.
 #
@@ -197,8 +144,8 @@ sheet.addRowDimension('E', 4)
 sheet.addRowDimension('F', 4)
 sheet.addRowDimension('G', 4)
 sheet.addRowDimension('H', 20)
-sheet.addRowDimension('I', 30)
-sheet.addRowDimension('J', 30)
+sheet.addRowDimension('I', 70)
+sheet.addRowDimension('J', 50)
 
 sheet.addData('B', 1, "playbook.yml")
 sheet.addData('B', 2, "設定")
@@ -271,8 +218,8 @@ sheet.addRowDimension('E', 4)
 sheet.addRowDimension('F', 4)
 sheet.addRowDimension('G', 4)
 sheet.addRowDimension('H', 20)
-sheet.addRowDimension('I', 30)
-sheet.addRowDimension('J', 30)
+sheet.addRowDimension('I', 70)
+sheet.addRowDimension('J', 50)
 
 sheet.addData('B', 1, "group_vars/all.yml")
 sheet.addData('B', 2, "設定")
@@ -308,8 +255,8 @@ sheet.addRowDimension('E', 4)
 sheet.addRowDimension('F', 4)
 sheet.addRowDimension('G', 4)
 sheet.addRowDimension('H', 20)
-sheet.addRowDimension('I', 30)
-sheet.addRowDimension('J', 30)
+sheet.addRowDimension('I', 70)
+sheet.addRowDimension('J', 50)
 
 sheet.addData('B', 1, "group")
 sheet.addData('B', 2, "設定")
@@ -381,8 +328,8 @@ sheet.addRowDimension('E', 4)
 sheet.addRowDimension('F', 4)
 sheet.addRowDimension('G', 4)
 sheet.addRowDimension('H', 20)
-sheet.addRowDimension('I', 30)
-sheet.addRowDimension('J', 30)
+sheet.addRowDimension('I', 70)
+sheet.addRowDimension('J', 50)
 
 sheet.addData('B', 1, "group")
 sheet.addData('B', 2, "設定")
